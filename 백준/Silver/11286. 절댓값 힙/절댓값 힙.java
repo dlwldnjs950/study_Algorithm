@@ -65,9 +65,9 @@ public class Main {
 			if(number == 0) {	// 0이면 출력 및 삭제 연산
 				// 이때, 힙이 비어있으면 0 출력
 				if(heap.isEmpty())
-					System.out.println(0);
+					sb.append(0).append("\n");
 				else
-					System.out.println(heap.poll()[1]);
+					sb.append(heap.poll()[1]).append("\n");
 			}else {	// 아니면 힙에 넣기
 				heap.offer(new int[] {Math.abs(number),number});
 			}

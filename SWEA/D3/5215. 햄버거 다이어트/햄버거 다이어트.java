@@ -82,7 +82,7 @@ public class Solution {
 				ingre[idx] = new ingredient(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
 			}
 			
-            maxYam = 0;
+			maxYam = 0;
 			// 재료 선택
 			subset(0);
 			sb.append(maxYam).append("\n");
@@ -104,6 +104,7 @@ public class Solution {
 			}
 
 			// 제한 칼로리 이하면 맛점수 확인
+            // 공집합은 제외
 			if (totalCal <= L && totalCal != 0) {
 				if (maxYam < totalYam)
 					maxYam = totalYam;

@@ -99,10 +99,12 @@ public class Main {
 			if (map[nr][nc] == 'x' || isSet[nr][nc])
 				continue;
 			
-			setPipe(nr, nc);
-			// 돌고 와서 표시
 			isSet[nr][nc] = true;
-			if(flag)
+			setPipe(nr, nc);
+			// 방문 표시를 풀지 않아도 된다.
+			// 왜냐하면 파이프를 위쪽 방향으로 향하는걸 우선으로 하니까
+			// 이미 우선이 되는 경우를 살펴봤으니까 표시를 해제할 필요가 없다
+			if(flag)	// 파이프가 완성되었으면 더 확인할 필요가 없으니까 return
 				return;
 		}
 

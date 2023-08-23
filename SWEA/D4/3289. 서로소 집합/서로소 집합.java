@@ -86,9 +86,9 @@ public class Solution {
 			parents[aRoot] = bRoot;
 
 			// 랭크가 같았다면
-			if (rank[aRoot] == rank[aRoot]) {
+			if (rank[aRoot] == rank[bRoot]) {
 				// b의 랭크를 높여 a를 그 밑으로 넣는다
-				rank[b]++;
+				rank[bRoot]++;
 			}
 		}
 		return true;

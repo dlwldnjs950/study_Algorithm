@@ -72,7 +72,7 @@ public class Main {
 			sushi[idx] = Integer.parseInt(br.readLine().trim());
 		}
 
-		List<Integer> eaten = new ArrayList<>();
+		//List<Integer> eaten = new ArrayList<>();
 		// 연속한거 먹기 로 풀어보자
 		// 0번 인덱스를 기준으로 k개를 먹는 상황부터 시작
 		int kindCnt = 0;	// 먹은 스시 종류
@@ -80,13 +80,13 @@ public class Main {
 			if(selected[sushi[idx]] == 0)	// 선택된적 없으면
 				kindCnt++;	// 종루 개수에 카운트
 			selected[sushi[idx]]++;
-			eaten.add(sushi[idx]);
+			//eaten.add(sushi[idx]);
 		}
 		//System.out.println(eaten);
 		int maxCnt = kindCnt;
 		// 최대 가짓수 일 때, 먹기 시작하는 인덱스 리스트
-		List<Integer> list = new ArrayList<>();
-		list.add(0);
+		//List<Integer> list = new ArrayList<>();
+		//list.add(0);
 
 		// 시작 상태에서 i번 인덱스 빼고, i+k번 인덱스 넣고
 		// 넣는 인덱스가 한바퀴 돌아서 와야하니까 (i+k)%N번 인덱스로 계산
@@ -96,8 +96,8 @@ public class Main {
 			// 추가되는 초밥 종류
 			int inKind = sushi[(idx + k) % N];
 			//System.out.println("out : " + outKind + " in : " + inKind);
-			eaten.remove(0);
-			eaten.add(inKind);
+			//eaten.remove(0);
+			//eaten.add(inKind);
 			// 선택되었던 종류의 초밥이라면 개수에서 제외하고, 선택 해제
 			if (--selected[outKind] == 0) {
 				kindCnt--;

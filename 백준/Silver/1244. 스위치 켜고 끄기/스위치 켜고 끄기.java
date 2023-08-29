@@ -1,72 +1,104 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
-
+	
 	/**
-	 * 스위치 켜져있음 : 1
-	 * 스위치 꺼져있음 : 0
-	 * # 학생들의 스위치 조작 규칙
-	 *   (성별 + 받은 수)
-	 *   남학생(1) : 스위치 번호가 받은 수의 배수이면 상태 바꿈
-	 *   여학생(2) : 받은 수 중심으로
-	 *   					좌우 대칭이면 최대 구간
-	 *   					좌우 대칭 아니면 받은 수 스위치만 바꿈
+	 * 	# 1244_스위치켜고끄기
+	 * 
+	 * 	[설명]
+	 * 스위치의 번호는 1번부터 시작
+	 * N개의 스위치
+	 * 스위치는 켜져있거나(1) 꺼져있다(0)
+	 * 
+	 * 	# 남학생(1) : 스위치 번호가 자기가 받은 수 배수 번호 스위치 모두 상태 바꿈
+	 * 	# 여학생(2) : 자기가 받은 수 중심으로 좌우 대칭 구간 모두 상태 바꿈
+	 * 
+	 * 	[입력]
+	 * ===> 스위치 개수
+	 * ===> 스위치 상태
+	 * ===> 학생 수
+	 * ===> 각 학생의 성별과 번호
+	 * 
+	 * 	[출력]
+	 * 한 줄에 20개 씩 출력한다
+	 * 
+	 * 	[풀이방법]
+	 * 1. 스위치 상태를 변경해야하므로 배열에 저장
+	 * 		배열 아니구 비트 마스킹...도 되나?
+	 * 	1-1. 스위치 상태는 ^1연산으로 변경
+	 * 2. 남학생인 경우, 인덱스 번호를 자신의 번호로 시작;스위치 개수보다 작을동안;배수로 커짐
+	 * 	   여학생인 경우, 좌우로 살펴볼 인덱스; 왼쪽이 0보다 크고, 오른쪽은 스위치 개수보다 작을동안; 1씩 커짐
+	 * 
 	 * */
 	
-	static int[] state;
-	static int N;
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		// 스위치의 개수
-		N = sc.nextInt();
-		state = new int[N+1];
+	static BufferedReader br;
+	static StringBuilder sb;
+	static StringTokenizer st;
+	
+	static int switchCnt, status[];
+	static final int ENTERCNT=20;
 
-		for (int loop = 1; loop <= N; loop++) {
-			state[loop] = sc.nextInt();
-		}
+	public static void main(String[] args) throws IOException{
 
-		// 학생 수
-		int sNum = sc.nextInt();
-		for (int sIdx = 0; sIdx < sNum; sIdx++) {
-			int gender = sc.nextInt();
-			int getNum = sc.nextInt();
-			switch (gender) {
-			case 1:
-				boy(getNum);
-				break;
-			case 2:
-				girl(getNum);
-				break;
-			}
+		br = new BufferedReader(new InputStreamReader(System.in));
+		sb = new StringBuilder();
+		
+		// 스위치 개수
+		switchCnt = Integer.parseInt(br.readLine().trim());
+		// 스위치 상태
+		// 스위치 번호는 1부터 시작
+		status = new int[switchCnt + 1];
+		st = new StringTokenizer(br.readLine().trim());
+		for(int sIdx = 1; sIdx<=switchCnt; sIdx++) {
+			status[sIdx] = Integer.parseInt(st.nextToken());
 		}
 		
-		StringBuilder sb = new StringBuilder();
-		for (int idx = 1; idx <= N; idx++) {
-			sb.append(state[idx]).append(" ");
-			if (idx % 20 == 0)
+		// 학생 수
+		int studentCnt = Integer.parseInt(br.readLine().trim());
+		for (int sIdx = 0; sIdx < studentCnt; sIdx++) {
+			st = new StringTokenizer(br.readLine().trim());
+			int gender = Integer.parseInt(st.nextToken());
+			int sNumber = Integer.parseInt(st.nextToken());
+			if (gender == 1) {// 남학생이면 boy 호출
+				boy(sNumber);
+			} else if (gender == 2) {// 여학생이면 girl 호출
+				girl(sNumber);
+			}
+			//System.out.println(Arrays.toString(status));
+		}
+		for(int idx=1; idx<=switchCnt; idx++) {
+			sb.append(status[idx]).append(" ");
+			// 한 줄에 20개 씩 출력해야한다
+			if(idx%ENTERCNT==0)
 				sb.append("\n");
 		}
 		System.out.println(sb);
 	}
-	
-	public static void boy(int num) {
-		for (int idx = 1; idx <= N; idx++) {
-			// 받은 수의 배수일 경우
-			if (idx % num == 0) {
-				state[idx] ^= 1;
-			}
+
+	// 인덱스 번호를 자신의 번호로 시작;스위치 개수보다 작을동안;배수로 커짐
+	static void boy(int number) {
+		for (int idx = number; idx <= switchCnt; idx += number) {
+			status[idx] ^= 1;
 		}
 	}
 
-	public static void girl(int num) {
-		state[num] ^= 1;
-		for (int idx = 0; num - idx > 0 && num + idx <= N; idx++) {
-			if (state[num - idx] == state[num + idx]) {
-				state[num - idx] ^= 1;
-				state[num + idx] ^= 1;
-			}else
-                break;
-        }
+	// 좌우로 살펴볼 인덱스; 왼쪽이 0보다 크고, 오른쪽은 스위치 개수보다 작을동안; 1씩 커짐
+	static void girl(int number) {
+		status[number] ^= 1;
+		for (int idx = 1; number - idx > 0 && number + idx <= switchCnt; idx++) {
+			// 양쪽이 서로 같은 경우에 스위치 상태 변경
+			if (status[number - idx] == status[number + idx]) {
+				status[number - idx] ^= 1;
+				status[number + idx] ^= 1;
+			}else {
+				// 살펴보다가 양쪽이 서로 달라지면 그만 살펴본다
+				break;
+			}
+		}
 	}
 
 }

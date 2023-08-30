@@ -1,91 +1,86 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Main {
 
 	/**
-	 * # 2023 신기한 소수
-	 * 	7331이 있을 때, 7331도 소수, 733도 소수, 73도 소수, 7도 소수
-	 * 	N자리의 신기한 소수를 모두 찾아라 
+	 * 	#2023 신기한 소수
 	 * 
-	 * 	N : 1~8
+	 * 	[ 설명 ]
+	 * 왼쪽부터 1자리, 2자리, 3자리, 4자리 모두 소수 인 신기한 소수
+	 * N자리 숫자 중에서 어떤 수들이 신기한 소수인지
+	 * 그 소수를 모두 출력
 	 * 
-	 * 	각 자리수는 홀수로 이루어져 있을 것 (1,3,5,7,9)
-	 * 	(짝수가 포함되어있으면, 자릿수를 줄여 확인할 때 짝수가 된다)
-	 * 	N자리 숫자를 만드는건 순열
-	 * 	숫자를 10으로 나눠가며 확인 (재귀?)
-	 * 	숫자가 1자리 숫자가 될 때 까지
-	 * 	
-	 * # 소수 판별 방법
-	 * 	
-	 * 앞에서부터 홀수를 붙여가면서 판단
-	 * 한자리 ->두자리 ->세자리...-> N자리
-	 * 두자리 수에 새로운 홀수 붙여서 판단
-	 * 그럼 자리수 늘릴때마다 새로운 List?
-	 * Queue에 넣어?
+	 * 	[ 입력 ]
+	 * ===> 자리수 N
 	 * 
+	 * 	[ 출력 ]
+	 * 신기한 소수를 오름차순으로 정렬해 한줄에 하나씩 출력
+	 * 
+	 * 	[ 풀이 방법 ]
+	 * 중복 순열 문제
+	 * 	=> N자리 수 만들고 각각에 대해 조건 만족하는지 판단...하기에는 경우의 수가 너무 많다
+	 * 왼쪽부터 1자리 2자리 3자리 4자리 각각도 소수를 만족해야 한다
+	 * 
+	 * 1자리 수 부터 시작해서 뒤에 숫자를 붙여서 소수인 숫자들의 리스트를 만든다
 	 * */
 	
 	static BufferedReader br;
 	static StringBuilder sb;
 	static StringTokenizer st;
 	
-	static final int[] ODDS = { 1,3,5,7,9 };
-	static Queue<String> primeNumber;	
-	static int N;
-	
 	public static void main(String[] args) throws IOException {
 		br = new BufferedReader(new InputStreamReader(System.in));
 		sb = new StringBuilder();
 		
-		// N 입력받기
-		N = Integer.parseInt(br.readLine().trim());
+		// 자릿수
+		int numLength = Integer.parseInt(br.readLine().trim());
 		
-		primeNumber = new LinkedList<>();
-		primeNumber.add(String.valueOf(2));
-		for (int oIdx = 1; oIdx < ODDS.length - 1; oIdx++) {
-			primeNumber.add(String.valueOf(ODDS[oIdx]));
-		}
+		// 오름차순으로 정렬되어있어야하므로 우선순위 큐로 관리한다.
+		PriorityQueue<Long> uniqueNumbers = new PriorityQueue<>();
+		uniqueNumbers.offer((long) 0);
 		
-		// 수를 꺼내서 ODDS를  붙여 소수인지 확인하고, 소수면 넣고
-		// 숫자의 길이가 N이 될 때까지
-		generateNumber(primeNumber.poll());
-		String[] primeArray = primeNumber.toArray(new String[primeNumber.size()]);
-		Arrays.sort(primeArray);
-		for(String num : primeArray) {
-			sb.append(num).append("\n");
+		
+		do {
+			// 같은 길이의 소수만큼만 확인
+			int size = uniqueNumbers.size();
+			for(int loop = 0; loop<size; loop++) {
+				// 찾아둔 소수를 하나씩 꺼내서 확인한다
+				long current = uniqueNumbers.poll();
+				//System.out.println("큐에서 꺼낸 수: " +current);
+				
+				// 1부터 9까지 붙여본다
+				for(int number=1; number<=9; number++) {
+					// 숫자를 뒤로 붙여서 확인한다.
+					long tmp = current*10 + number;
+					// 해당 수가 소수면 큐에 넣는다
+					if(isPrimeNumber(tmp))
+						uniqueNumbers.offer(tmp);
+				}
+			}
+		// 큐에 담긴 숫자 길이로 반복을 제한한다
+		}while(uniqueNumbers.peek().toString().length()<numLength);
+
+		// 큐에 담긴 값을 하나씩 꺼내어 출력문에 붙인다
+		while(!uniqueNumbers.isEmpty()) {
+			sb.append(uniqueNumbers.poll()).append("\n");
 		}
 		System.out.println(sb);
 	}
-	
-	// 홀수로 N자리 수 만들기
-	private static void generateNumber(String number) {
-		// 넘어온 숫자 문자열의 길이가 N이 되면 끝낸다
-		// 4자리 숫자 하나 뺀거는 다시 넣어준다
-		if(number.length()==N) {
-			primeNumber.add(number);
-			return;
-		}
-		for (int idx = 0; idx < ODDS.length; idx++) {
-			int tmpNum = Integer.valueOf(number + ODDS[idx]);
-			if (isPrime(tmpNum)) {
-				primeNumber.add(String.valueOf(tmpNum));
-			}
-		}
-		generateNumber(primeNumber.poll());
-	}
-	
-	// 소수 판별
-	private static boolean isPrime(int number) {
-		for (int num = 2; num * num <= number; num++) {	//2부터 확인해야한다 (nullpoint 오류 났었음)
-			if (number % num == 0)
+
+	static boolean isPrimeNumber(long number){
+		// 1은 소수가 아니다
+		if(number == 1)
+			return false;
+		for(int divisor = 2; divisor*divisor<=number; divisor++) {
+			// 어떤 수로 나뉜다면 약수가 1과 자기자신을 제외하고 존재한다는 의미
+			if(number%divisor == 0)
 				return false;
 		}
+		
 		return true;
 	}
 }

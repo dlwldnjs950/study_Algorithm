@@ -56,14 +56,17 @@ public class Main {
 		for(int tIdx = 1; tIdx<=topCnt; tIdx++) {
 			topHeight[tIdx] = Integer.parseInt(st.nextToken());
 			while(!stack.isEmpty()) {
+				// 나보다 큰 값이면 레이저 받음
 				if(stack.peek()[1] > topHeight[tIdx]) {
 					receiveTop[tIdx] = stack.peek()[0];
 					break;
-				}else
+				}else	// 나보다 작으면 빼기
 					stack.pop();
 			}
+			// 비교할 값이 없으면 0
 			if(stack.isEmpty())
 				receiveTop[tIdx] = 0;
+			// 다음 비교를 위해 push
 			stack.push(new int[] {tIdx, topHeight[tIdx]});
 		}
 		

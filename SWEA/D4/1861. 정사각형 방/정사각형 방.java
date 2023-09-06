@@ -4,122 +4,132 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Solution {
-	
+
 	/**
-	 * 	# 1861_정사각형 방
+	 * # 1861_정사각형 방
 	 * 
-	 * 	[설명]
-	 * N^2개의 방이 NxN 형태로 늘어서 있다
-	 * 각 방에는 1~N^2의 수가 적혀있다 (다 다름)
+	 * [설명]
+	 *  N*N개의 방 2차원 형태로 존재 
+	 *  i번째 줄 j번째 방에 적혀있는 수 = Aij 
+	 *  (방에 적혀있는 숫자는 서로 다르다)
 	 * 
-	 * 	# 상하좌우 이동 규칙
-	 * 1. 이동하려는 방 존재 (방 범위 내)
-	 * 2. 이동방의 숫자 == 현재방 +1 
+	 * 상하좌우로 방 이동 가능 단, 
+	 * 방이 존재해야하고 
+	 * 이동하려는 방에 적힌 숫자가 
+	 * 현재 방에 적흰 숫자보다 정확히 1 더 커야한다.
 	 * 
-	 * 가장 많은 방을 방문하려면 처음에 어떤 수가 적힌 방에 있어야 하는가?
-	 * 방 개수는 시작방도 포함
+	 * 처음에 어떤 수가 적힌 방에 있어야 가장 많은 개수의 방을 이동하는지 구하여라
 	 * 
-	 * 이동 가능한 방이 여러개라면 가장 작은 방
+	 * [입력] 
+	 * ===> 테스트 케이스 수 
+	 * ===> 방의 크기 N 
+	 * ===> 각 방에 적힌 숫자 정보
 	 * 
-	 * 	[입력]
-	 * ===> 테스트 케이스 수 T
-	 * (T개의 테스트 케이스)
-	 * ===> 방 개수 결정하는 N
-	 * (N줄의 방별 숫자, 공백 구분)
-	 * ===> 방별 숫자
+	 * [출력] 
+	 * 처음 출발하는 방 번호와 이동한 방의 개수 공백 구분 출력
 	 * 
-	 * 	[출력]
-	 * 처음 출발해야하는 방의 번호와
-	 * 최대 몇개의 방을 이동할 수 있는지 출력
+	 * [풀이방법] 
+	 * 출발점을 찾아야하는데 이동한 방의 개수는 도착점에서 알 수 있다 
+	 * => 도착점을 기준으로 출발점을 찾는다 
+	 * => 이동하려는 방에 적힌 숫자가 정확히 1 더 작은 방으로 이동한다
 	 * 
-	 * 	[풀이방법]
-	 * 각 좌표에 대해 DFS
+	 * 1. 각 방을 기준으로 탐색 
+	 * 2. 상하좌우
+	 *  2-1. DFS 
+	 *  3. 이동을 더이상 못할때, 이동한 방의 개수 확인 
+	 *  4. 이동한 방의 개수가 더 커졌다면 저장 (이동한 방의 개수, 출발점) 
+	 *  5. 이동한 방의 개수가 같다면 출발점은 더 작은 것으로 저장
 	 * 
-	 * */
-	
+	 */
+
 	static BufferedReader br;
 	static StringBuilder sb;
 	static StringTokenizer st;
 	
-	static int N;
-	static int[][] room;
-	static boolean[][] visited;
-	static int maxCnt, maxRoomNum;
+	static int roomSize, rooms[][], maxMove, startRoomNum;
+	static boolean visited[][];
 
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException {
 
 		br = new BufferedReader(new InputStreamReader(System.in));
 		sb = new StringBuilder();
+
 		// 테스트 케이스 개수 T
 		int T = Integer.parseInt(br.readLine().trim());
 
-		for(int testCase =1; testCase <=T; testCase++) {
+		for (int testCase = 1; testCase <= T; testCase++) {
 			sb.append("#").append(testCase).append(" ");
+
+			// 방의 크기
+			roomSize = Integer.parseInt(br.readLine().trim());
+
+			// 방에 적힌 번호 정보
+			rooms = new int[roomSize][roomSize];
 			
-			// 방 개수 결정 N 입력받기
-			N = Integer.parseInt(br.readLine().trim());
-			
-			// 방별 숫자 저장 배열
-			room = new int[N][N];
-			// 방별 숫자 입력
-			for (int rowIdx = 0; rowIdx < N; rowIdx++) {
+			for (int rowIdx = 0; rowIdx < roomSize; rowIdx++) {
 				st = new StringTokenizer(br.readLine().trim());
-				for (int colIdx = 0; colIdx < N; colIdx++) {
-					room[rowIdx][colIdx] = Integer.parseInt(st.nextToken());
+				
+				for (int colIdx = 0; colIdx < roomSize; colIdx++) {
+					rooms[rowIdx][colIdx] = Integer.parseInt(st.nextToken());
 				}
 			}
 			
-			//각 좌표에 대해 DFS
-			// 방문 여부 표시할 배열
-			visited = new boolean[N][N];
-			// 가장 많은 방 방문 횟수와 좌표값
-			maxRoomNum = 0;
-			maxCnt = 0;
-			// 각 방에 대해 dfs를 돌린다
-			for (int rowIdx = 0; rowIdx < N; rowIdx++) {
-				for (int colIdx = 0; colIdx < N; colIdx++) {
-					visited[rowIdx][colIdx] = true;
+			// 각 방에서 탐색하기
+			maxMove = Integer.MIN_VALUE;
+			startRoomNum = Integer.MAX_VALUE;
+			
+			for (int rowIdx = 0; rowIdx < roomSize; rowIdx++) {	
+				
+				// 방문 표시 배열 초기화
+				visited = new boolean[roomSize][roomSize];	
+				
+				for (int colIdx = 0; colIdx < roomSize; colIdx++) {
+					
 					dfs(rowIdx, colIdx, 1);
-					visited[rowIdx][colIdx] = false;
 				}
 			}
 
-			sb.append(maxRoomNum).append(" ").append(maxCnt).append("\n");
+			sb.append(startRoomNum).append(" ").append(maxMove).append("\n");
 		}
 		System.out.println(sb);
 	}
-	
-	// 탐색에 사용할 델타 배열
-	static int[] dx = { -1, 1, 0, 0 }, dy = { 0, 0, -1, 1 };
-	
-	// 시작점이 들어가야하는데 도착점이 들어간다 -> 역으로 돌려~!
-	
-	// 상하좌우에 대해, 딱 1만큼 작은 경우 이동
-	static void dfs(int row, int col, int cnt) {
-		for(int dIdx = 0; dIdx<4; dIdx++) {
-			// 해당 지점까지는 도달한거니까 max 정보 갱신
-			if (maxCnt < cnt) {	//더 큰 값이면
-				maxRoomNum = room[row][col];
-				maxCnt = cnt;
-			}else if(maxCnt == cnt) {	// 같은 값인 경우, 방에 적힌 값이 더 작은걸 기억해두자
-				if(maxRoomNum > room[row][col]) {
-					maxRoomNum = room[row][col];
-				}
-			}
-			// 다음 이동할 좌표 구하기
-			int nx = row + dx[dIdx];
-			int ny = col + dy[dIdx];
-			
-			// 좌표가 범위 밖이고, 이미 방문했다면 다음 for문
-			if (nx < 0 || nx >= N || ny < 0 || ny >= N || visited[nx][ny])
-				continue;
-			if(room[row][col] - 1 != room[nx][ny])
-				continue;
-			
-			visited[nx][ny] = true;
-			dfs(nx, ny, cnt + 1);
-			visited[nx][ny] = false;
-			
+
+	// 탐색 델타 배열
+	static int[] dr = { -1, 1, 0, 0 }, dc = { 0, 0, -1, 1 };
+
+	private static void dfs(int row, int col, int move) {
+		visited[row][col] = true;
+		
+		// 이동한 방 개수와 출발점 비교
+		if (maxMove < move) {
+			maxMove = move;
+			startRoomNum = rooms[row][col];
+		} else if (maxMove == move) {
+			startRoomNum = Math.min(startRoomNum, rooms[row][col]);
 		}
+		// 상하좌우 각 방향 탐색
+		for (int direction = 0; direction < dr.length; direction++) {
+			int nr = row + dr[direction];
+			int nc = col + dc[direction];
+
+			// 범위를 넘어가면 다른 방향
+			if (nr < 0 || nc < 0 || nr >= roomSize || nc >= roomSize)
+				continue;
+
+			// 방문한 곳이면 다음 방향 탐색
+			if (visited[nr][nc])
+				continue;
+
+			// 나보다 1 작은 곳이 아니면 다른 방향
+			if (rooms[row][col] - 1 != rooms[nr][nc])
+				continue;
+
+			dfs(nr, nc, move + 1);
+		}
+		
+		// 방문 표시 해제
+		visited[row][col] = false;
+		
 	}
+
 }

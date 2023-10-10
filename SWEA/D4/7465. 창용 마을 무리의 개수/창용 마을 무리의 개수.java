@@ -1,98 +1,101 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Solution {
 
 	/**
-	 * 	# 7465_창용 마을 무리의 개수
+	 * 사람 1번 ~ 4번
+	 * 무리 = 서로 아는 사이 or 몇사람 거쳐서 알 수 있는 사이
+	 * 창용마을에 몇개의 무리가 존재하는 가?
 	 * 
-	 * 	[ 설명 ]
-	 * N명의 사람 (1번 ~ N번)
-	 * 서로 아는 관계거나, 몇사람 거쳐 알 수 있는 관계라면 묶어서 하나의 무리
+	 * 탐색을 통해 서로 연결되어 있는 그래프의 개수
+	 * BFS로 풀었으니 이번에는 DFS로 풀어보자
 	 * 
-	 * 창용 마을에 몇개의 무리가 존재하는가?
+	 * 연결된 두 사용자의 번호만이 주어진다 => 연결 리스트 //지만 최대 100명이니까 인접 행렬
 	 * 
-	 * 	[ 입력 ]
-	 * ===> 테스트 케이스 수
-	 * ===> 창용마을 사람 수와 서로 알고 있는 사람 관계 수
-	 * ===> 서로 알고있는 두 사람의 번호
-	 * 
-	 * 	[ 풀이 방법 ]
-	 * 서로 알고있는 관계 = 무향 그래프 관계
-	 * 
-	 * */
+	 */
 	
 	static BufferedReader br;
 	static StringBuilder sb;
 	static StringTokenizer st;
+	
+	static int personNum;
+	static boolean checked[];
+	static List<List<Integer>> relation;
 	
 	public static void main(String[] args) throws IOException {
 		br = new BufferedReader(new InputStreamReader(System.in));
 		sb = new StringBuilder();
 		
 		// 테스트 케이스 개수
-		int tc = Integer.parseInt(br.readLine().trim());
+		int TC = Integer.parseInt(br.readLine().trim());
 		
-		for(int testCase =1; testCase<=tc; testCase++) {
+		for(int testCase = 1; testCase<=TC; testCase++) {
 			sb.append("#").append(testCase).append(" ");
 			
-			// 사람 수와 관계 정보
+			// 마을에 사는 사람 수, 사람 관계 수
 			st = new StringTokenizer(br.readLine().trim());
-
-			int pNumber = Integer.parseInt(st.nextToken());
-			int compareCnt = Integer.parseInt(st.nextToken());
-
-			// 사람 연결 정보 저장
-			List<List<Integer>> connectMap = new ArrayList<>();
-
-			for (int idx = 0; idx <= pNumber; idx++) {
-				connectMap.add(new ArrayList<>());
+			personNum = Integer.parseInt(st.nextToken());
+			int compareNum = Integer.parseInt(st.nextToken());
+			
+			// 사람 관계 저장할 자료구조
+			relation = new LinkedList<>();
+			for(int loop=0; loop<personNum; loop++) {
+				relation.add(new LinkedList<>());
 			}
 			
-			// 연결 정보 저장
-			for(int loop=0; loop<compareCnt; loop++) {
+			// 관계정보 저장
+			for(int loop=0; loop<compareNum; loop++) {
 				st = new StringTokenizer(br.readLine().trim());
 				
-				int from = Integer.parseInt(st.nextToken());
-				int to = Integer.parseInt(st.nextToken());
+				// 사람 번호는 1번부터 시작하므로 1 빼고 넣어준다
+				int from = Integer.parseInt(st.nextToken()) -1;
+				int to = Integer.parseInt(st.nextToken())-1;
 				
-				connectMap.get(from).add(to);
-				connectMap.get(to).add(from);
+				relation.get(from).add(to);
+				relation.get(to).add(from);
 			}
 			
-			int visited[] = new int[pNumber + 1];
+			// 탐색한 사람 표시 배열
+			checked = new boolean[personNum];
 			
-			Queue<Integer> queue = new ArrayDeque<>();
-			
-			int num = 0;
-			for(int idx = 1; idx<=pNumber; idx++) {
-				if(visited[idx] != 0)
+			int result =0;
+			// 각 사람에 대해 탐색
+			for(int person=0; person < personNum; person++) {
+				
+				// 이미 무리확인 했으면 넘어감
+				if(checked[person])
 					continue;
-				queue.offer(idx);
-				visited[idx] = ++num;
 				
-				while(!queue.isEmpty()) {
-					int current = queue.poll();
-					
-					for(int person : connectMap.get(current)) {
-						if(visited[person] != 0)
-							continue;
-						queue.offer(person);
-						visited[person] = num;
-					}
-				}
+				checkRelation(person);
+				result++;
 			}
-			sb.append(num).append("\n");
+			
+			sb.append(result).append("\n");
 		}
 		
 		System.out.println(sb);
 	}
 
-}
+	private static void checkRelation(int person) {
+		
+		// 파라미터로 넘어온 사람 번호에 대해 연결된 사람마다 탐색
+		for(int number : relation.get(person)) {
+			
+			// 이미 무리 확인했으면 넘어감
+			if(checked[number])
+				continue;
+			
+			// 확인했음을 표시
+			checked[number] = true;
+			
+			// 연결 확인하기
+			checkRelation(number);
+		}
+	}
 
+}

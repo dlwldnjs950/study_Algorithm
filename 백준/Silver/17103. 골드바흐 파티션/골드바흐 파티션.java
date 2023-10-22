@@ -39,11 +39,11 @@ public class Main {
 			max = Math.max(max, input[testCase]);
 		}
 		
-		for (int testCase = 0; testCase < N; testCase++) {
-			
-			isErased = new boolean[max + 1];
+		isErased = new boolean[max + 1];
 
-			findPrime(max);
+		findPrime(max);
+		
+		for (int testCase = 0; testCase < N; testCase++) {
 
 			int cnt = cntPartition(input[testCase]);
 			

@@ -51,6 +51,7 @@ public class Main {
 					result += cnt;
 				}
 				bracket.pop();
+				// 괄호 한 쌍을 처리했으니까
 				cnt /= 2;
 
 			} else if (current == ']') {
@@ -63,6 +64,7 @@ public class Main {
 					result += cnt;
 				}
 				bracket.pop();
+				// 괄호 한 쌍을 처리했으니까
 				cnt /= 3;
 			}
 		}

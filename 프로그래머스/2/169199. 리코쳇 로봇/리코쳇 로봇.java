@@ -40,29 +40,26 @@ class Solution {
         // 우0 하1 좌2 상3
         int[] dx = {0,-1,0,1}, dy = {1,0,-1,0};
         int answer = 0;
-        // 방향에 대한 방문 표시
         boolean[][][] visited = new boolean[height][width][4];
         Queue<Point> queue = new ArrayDeque<>();
-        // 시작 지점에서 어느 방향으로 갈 수 있는지 다 표시
         for(int direction = 0; direction<4; direction++){
             int nx = start.x + dx[direction];
             int ny = start.y + dy[direction];
             if(nx<0 || ny<0 || nx>=height || ny>=width)
                 continue;
-            // 장애물이면 못지나감
             if(maps[nx][ny] == 'D')
                 continue;
-            // 해당지점 해당 방향 이동
             queue.add(new Point(start.x, start.y, direction));
             visited[start.x][start.y][direction] = true;
         }
         
         while(!queue.isEmpty()){
-            // 각 단계별로 이동 횟수 확인이기 때문에
+            //System.out.println(answer+"---------------------");
             int size = queue.size();
             
             for(int loop = 0; loop<size; loop++){
                 Point current = queue.poll();
+                //System.out.println(current.toString()+" / "+maps[current.x][current.y]);
                 
                 // 해당 지점에서 해당 방향으로 미끄러진 뒤
                 int nx = current.x;
@@ -76,15 +73,12 @@ class Solution {
                     if(maps[nnx][nny] == 'D')
                         break;
                     
-                    // 이동 가능할 때만 표시
                     nx = nnx;
                     ny = nny;
                 }
-                // 미끄러져 멈춘 지점이 출구라면 이동횟수 리턴하며 종료
+                // 다음 방향 찾기
                 if(maps[nx][ny] == 'G')
                     return answer +1;
-                
-                // 다음 방향 찾기
                 for(int direction = 0; direction<4; direction++){
                     int ndx = nx + dx[direction];
                     int ndy = ny + dy[direction];
@@ -101,7 +95,7 @@ class Solution {
             answer++;
         }
         
-        // 중간에 리턴하지 못하고 밖으로 나왔다면 -1 리턴
+        
         return -1;
     }
 }

@@ -24,83 +24,75 @@ class Solution {
     
     public List<String> solution(String[][] plans) {
                 
+        // 시작 시간을 기준으로 정렬되야 함
         PriorityQueue<Work> queue = new PriorityQueue<>((a,b)->a.start - b.start);
+        // 중단된 과제 목록
         Stack<Work> stack = new Stack<>();
         for(String[] plan : plans){
             queue.add(new Work(plan[0], toMinute(plan[1]), Integer.parseInt(plan[2])));
         }
         
+        // 정답
         List<String> answer = new ArrayList<>();
         
-        
         while(!queue.isEmpty()){
+            // 최근 과제
             Work current = queue.poll();
             
-            int nowTime = current.start;            
-            // 다음 과제가 있으면
+            // 다음 과제가 남아있다면
+            // 왜냐면 다음으로 새 과제를 해야하는 지 미뤄둔 과제를 해야하는지 결정해야 함
             if(!queue.isEmpty()){
-                
+
                 Work next = queue.peek();
                 
-                // 다음 과제까지 시간이 남아있으면
+                // 다음 과제까지 시간이 남아있다면
                 if(current.start + current.playtime < next.start){
-                    answer.add(current.name);
-                    nowTime += current.playtime;
                     
-                    // 미뤄둔 과제하기
+                    // 최근 과제 수행하고
+                    answer.add(current.name);
+                    
+                    // 미뤄둔 과제
+                    int currentTime = current.start + current.playtime;
                     while(!stack.isEmpty()){
                         
                         Work remain = stack.pop();
                         
-                        // 다음 과제 전에 끝낼 수 있으면
-                        if(nowTime + remain.playtime <= next.start){
-                            nowTime += remain.playtime;
+                        if(currentTime + remain.playtime <= next.start){
+                            currentTime += remain.playtime;
                             answer.add(remain.name);
                         }else{
-                            // 수행한 만큼 차감
-                            remain.playtime -= next.start - nowTime;
-                            stack.add(remain);
+                            remain.playtime -= next.start - currentTime;
+                            stack.push(remain);
                             break;
                         }
-                        
                     }
                 }
                 
-                // 과제 종료 시간과 동일하면 완료 후 다음 과제
+                // 최근 과제 종료와 동시에 시작
                 else if(current.start + current.playtime == next.start){
                     answer.add(current.name);
-                    continue;
-                    
                 }
                 
-                // 다음 과제 먼저 해야할 경우
+                // 다음 과제부터 해야한다면
                 else{
                     current.playtime -= next.start - current.start;
                     stack.push(current);
                 }
             }
             
-            // 다음 과제가 없으면 미뤄둔 과제
+            // 다음 과제가 없다면
             else{
+                // 일단 최근 과제를 하고
+                answer.add(current.name);
                 
-                // 남은 과제가 없으면
-                if(stack.isEmpty()){
-                    // 최근 과제 수행하기
-                    answer.add(current.name);
-                }
-                
-                // 남은 과제가 있으면
-                else{
-                    // 최근 과제부터 수행하고
-                    answer.add(current.name);
-                    
-                    while(!stack.isEmpty()){
-                        answer.add(stack.pop().name);
-                    }
+                // 미뤄둔 과제를 한다
+                while(!stack.isEmpty()){
+                    answer.add(stack.pop().name);
                 }
             }
-            
         }
+        
+        
         
         return answer;
     }

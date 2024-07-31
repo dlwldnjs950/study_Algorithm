@@ -20,6 +20,8 @@ class Solution {
     }
 
     private void backtrack(int arrows, int[] apeach, int[] ryan, int idx) {
+        
+        // 각 과녁을 다 확인했거나, 화살을 다 사용했으면
         if (idx == -1 || arrows == 0) {
             ryan[10] += arrows;  // 남은 화살은 모두 0점에 배치
             int ryanScore = 0;
@@ -40,14 +42,14 @@ class Solution {
             return;
         }
         
-        // 현재 점수를 이기는 경우
+        // 라이언이 현재 점수를 얻을 수 있는지
         if (arrows > apeach[idx]) {
             ryan[idx] = apeach[idx] + 1;
             backtrack(arrows - ryan[idx], apeach, ryan, idx - 1);
             ryan[idx] = 0;  // 되돌리기
         }
 
-        // 현재 점수를 지는 경우
+        // 얻을 수 있었어도, 없었어도 확인은 해야하니까 else가 아님
         backtrack(arrows, apeach, ryan, idx - 1);
     }
 }

@@ -5,7 +5,7 @@ class Solution {
         for(int idx=0; idx < numbers.length; idx++){
             long number = numbers[idx];
             // 짝수
-            if(number % 2 == 0){
+            if((number & 1) == 0){
                 answer[idx] = number +1;
             // 홀수
             }else{

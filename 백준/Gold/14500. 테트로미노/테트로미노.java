@@ -3,11 +3,13 @@ import java.util.*;
 
 public class Main {
 
+	/**/
+
 	static BufferedReader br;
+	static StringBuilder sb;
 	static StringTokenizer st;
 
-	static final int BLOCKheightUwidth = 4;
-	static int height, width, maps[][], selectedIdx[], maxSum;
+	static int height, width, maps[][], maxSum;
 	static boolean isVisited[][];
 
 	public static void main(String[] args) throws IOException {
@@ -27,14 +29,14 @@ public class Main {
 			}
 		}
 
-		// 각 위치에 대해 가능한 합을 모두 구하자
+		maxSum = 0;
 		isVisited = new boolean[height][width];
 		for (int rIdx = 0; rIdx < height; rIdx++) {
 			for (int cIdx = 0; cIdx < width; cIdx++) {
 				isVisited[rIdx][cIdx] = true;
 				dfs(rIdx, cIdx, maps[rIdx][cIdx], 1);
 				isVisited[rIdx][cIdx] = false;
-				checkExceptionShape(rIdx, cIdx);
+				checkOtherShape(rIdx, cIdx);
 			}
 		}
 
@@ -42,44 +44,54 @@ public class Main {
 
 	}
 
-	static int[] dr = { 0, -1, 0, 1 }, dc = { -1, 0, 1, 0 };
+	static int[] dr = { 0, -1, 0, 1 }, dc = { 1, 0, -1, 0 };
 
-	// DFS를 사용하여 테트로미노 모양 탐색
-	private static void dfs(int x, int y, int sum, int depth) {
+	private static void dfs(int rIdx, int cIdx, int tmpSum, int depth) {
+
 		if (depth == 4) {
-			maxSum = Math.max(maxSum, sum);
+			maxSum = Math.max(maxSum, tmpSum);
 			return;
 		}
 
-		for (int i = 0; i < 4; i++) {
-			int nx = x + dr[i];
-			int ny = y + dc[i];
+		for (int direction = 0; direction < 4; direction++) {
+			int nr = rIdx + dr[direction];
+			int nc = cIdx + dc[direction];
 
-			if (nx < 0 || nx >= height || ny < 0 || ny >= width || isVisited[nx][ny])
+			if (nr < 0 || nc < 0 || nr >= height || nc >= width)
+				continue;
+			if (isVisited[nr][nc])
 				continue;
 
-			isVisited[nx][ny] = true;
-			dfs(nx, ny, sum + maps[nx][ny], depth + 1);
-			isVisited[nx][ny] = false;
+			isVisited[nr][nc] = true;
+			dfs(nr, nc, tmpSum + maps[nr][nc], depth + 1);
+			isVisited[nr][nc] = false;
 		}
 	}
 
-	// 'ㅗ', 'ㅜ', 'ㅓ', 'ㅏ' 모양 체크
-	private static void checkExceptionShape(int x, int y) {
-		if (x >= 0 && x < height - 1 && y >= 0 && y < width - 2) {
-			int sum = maps[x][y] + maps[x][y + 1] + maps[x][y + 2] + maps[x + 1][y + 1];
+	// dfs로 탐색할 수 없는 모양(ㅗ) 확인
+
+	private static void checkOtherShape(int row, int col) {
+		// ㅗ
+		if (col + 1 < width && col + 2 < width && row + 1 < height) {
+			int sum = maps[row][col] + maps[row][col + 1] + maps[row][col + 2] + maps[row + 1][col + 1];
 			maxSum = Math.max(maxSum, sum);
 		}
-		if (x >= 1 && x < height && y >= 0 && y < width - 2) {
-			int sum = maps[x][y] + maps[x][y + 1] + maps[x][y + 2] + maps[x - 1][y + 1];
+
+		// ㅏ
+		if (row + 1 < height && row + 2 < height && col + 1 < width) {
+			int sum = maps[row][col] + maps[row + 1][col] + maps[row + 2][col] + maps[row + 1][col + 1];
 			maxSum = Math.max(maxSum, sum);
 		}
-		if (x >= 0 && x < height - 2 && y >= 0 && y < width - 1) {
-			int sum = maps[x][y] + maps[x + 1][y] + maps[x + 2][y] + maps[x + 1][y + 1];
+
+		// ㅜ
+		if (col + 1 < width && col + 2 < width && row - 1 >= 0) {
+			int sum = maps[row][col] + maps[row][col + 1] + maps[row][col + 2] + maps[row - 1][col + 1];
 			maxSum = Math.max(maxSum, sum);
 		}
-		if (x >= 0 && x < height - 2 && y >= 1 && y < width) {
-			int sum = maps[x][y] + maps[x + 1][y] + maps[x + 2][y] + maps[x + 1][y - 1];
+
+		// ㅓ
+		if (row + 1 < height && row + 2 < height && col - 1 >= 0) {
+			int sum = maps[row][col] + maps[row + 1][col] + maps[row + 2][col] + maps[row + 1][col - 1];
 			maxSum = Math.max(maxSum, sum);
 		}
 	}

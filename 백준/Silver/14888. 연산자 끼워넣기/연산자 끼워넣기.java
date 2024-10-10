@@ -1,87 +1,78 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class Main {
 
-	/**
-	 * 
-	 */
-	
+	/**/
+
 	static BufferedReader br;
 	static StringBuilder sb;
 	static StringTokenizer st;
-	
-	static int maxResult, minResult;
-	static int numbers[], numberNum, operCnt[];
+
+	static int num, numbers[], operLimits[], answer[];
 
 	public static void main(String[] args) throws IOException {
 
 		br = new BufferedReader(new InputStreamReader(System.in));
 		sb = new StringBuilder();
 
-		numberNum = Integer.parseInt(br.readLine().trim());
+		// 숫자 개수
+		num = Integer.parseInt(br.readLine().trim());
 
-		// 숫자들
-		numbers = new int[numberNum];
-
+		// 숫자 목록
+		numbers = new int[num];
 		st = new StringTokenizer(br.readLine().trim());
-		for (int idx = 0; idx < numberNum; idx++) {
+		for (int idx = 0; idx < num; idx++) {
 			numbers[idx] = Integer.parseInt(st.nextToken());
 		}
 
-		// 각 연산자 개수 ( + - x / )
-		operCnt = new int[4];
+		// 연산자 개수 제한(+, -, x, /)
+		operLimits = new int[4];
 		st = new StringTokenizer(br.readLine().trim());
 		for (int idx = 0; idx < 4; idx++) {
-			operCnt[idx] = Integer.parseInt(st.nextToken());
+			operLimits[idx] = Integer.parseInt(st.nextToken());
 		}
-		
-		maxResult = Integer.MIN_VALUE;
-		minResult = Integer.MAX_VALUE;
-		calculate(0,numbers[0]);
-		
-		sb.append(maxResult).append("\n").append(minResult);
+
+		answer = new int[2];
+		answer[0] = Integer.MAX_VALUE;// 최소값
+		answer[1] = Integer.MIN_VALUE;// 최대값
+		makeResult(1, numbers[0]);
+
+		sb.append(answer[1]).append("\n").append(answer[0]);
 		
 		System.out.println(sb);
+
 	}
 
-	private static void calculate(int depth, int midResult) {
+	static void makeResult(int cnt, int midResult) {
 
-		if (depth == numberNum - 1) {
-			//System.out.println(midResult);
-			maxResult = Math.max(maxResult, midResult);
-			minResult = Math.min(minResult, midResult);
-			return;
+		if (cnt == num) {
+			answer[0] = Math.min(answer[0], midResult);
+			answer[1] = Math.max(answer[1], midResult);
 		}
 
-		// 각 연산자 중복 순열
 		for (int oper = 0; oper < 4; oper++) {
-			if (operCnt[oper] == 0)
+			if (operLimits[oper] < 1)
 				continue;
-			operCnt[oper]--;
-			calculate(depth + 1, oper(midResult, oper, numbers[depth+1]));
-			operCnt[oper]++;
-		}
+			operLimits[oper] -= 1;
 
+			switch (oper) {
+			case 0:
+				makeResult(cnt + 1, midResult + numbers[cnt]);
+				break;
+			case 1:
+				makeResult(cnt + 1, midResult - numbers[cnt]);
+				break;
+			case 2:
+				makeResult(cnt + 1, midResult * numbers[cnt]);
+				break;
+			case 3:
+				makeResult(cnt + 1, midResult / numbers[cnt]);
+				break;
+			}
+
+			operLimits[oper] += 1;
+		}
 	}
 
-	private static int oper(int midResult, int oper, int number) {
-		switch (oper) {
-		case 0:
-			midResult +=number;
-			break;
-		case 1:
-			midResult -=number;
-			break;
-		case 2:
-			midResult *=number;
-			break;
-		case 3:
-			midResult /=number;
-			break;
-		}
-		return midResult;
-	}
 }
